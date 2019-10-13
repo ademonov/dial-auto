@@ -8,8 +8,6 @@ edition = "2018"
 
 [workspace]
 
-members = [
-    "svc",
-]
+members = [ "svc" ]
 
 [dependencies]
