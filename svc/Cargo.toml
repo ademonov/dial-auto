@@ -1,9 +1,13 @@
 [package]
 name = "dial-auto-svc"
 version = "0.1.0"
-
+edition = "2018"
+build = "build.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 windows-service = "0.2.0"
+log = "0.4.8"
+dotenv = "0.15.0"
+env_logger = "0.7.1"

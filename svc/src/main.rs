@@ -1,10 +1,12 @@
 #[macro_use] extern crate windows_service;
 
+use dotenv::dotenv;
+use env_logger;
 use std::ffi::OsString;
 use std::time::Duration;
 use windows_service::service_dispatcher;
 use windows_service::service::{
-    ServiceControl, ServiceControlAccept, ServiceExitCode, ServiceState, ServiceStatus,
+    /*ServiceControl,*/ ServiceControlAccept, ServiceExitCode, ServiceState, ServiceStatus,
     ServiceType,
 };
 use windows_service::service_control_handler::{self, ServiceControlHandlerResult};
@@ -21,10 +23,14 @@ fn my_service_main(arguments: Vec<OsString>) {
 fn run_service(_arguments: Vec<OsString>) -> windows_service::Result<()> {
     let event_handler = move |control_event| -> ServiceControlHandlerResult {
         match control_event {
-            ServiceControl::Stop | ServiceControl::Interrogate => {
+//            ServiceControl::Stop | ServiceControl::Interrogate => {
+//                ServiceControlHandlerResult::NoError
+//            }
+
+            evt => {
+                log::info!("{:?}", evt);
                 ServiceControlHandlerResult::NoError
             }
-            _ => ServiceControlHandlerResult::NotImplemented,
         }
     };
 
@@ -56,6 +62,11 @@ fn run_service(_arguments: Vec<OsString>) -> windows_service::Result<()> {
 
 #[cfg(windows)]
 fn main() -> Result<(), windows_service::Error> {
+    dotenv().ok();
+    env_logger::builder()
+        .write
+    env_logger::init();
+    log::info!("started");
     // Register generated `ffi_service_main` with the system and start the service, blocking
     // this thread until the service is stopped.
     service_dispatcher::start(SERVICE_NAME, ffi_service_main)?;
