@@ -1,7 +1,6 @@
 #[macro_use] extern crate windows_service;
 
 use dotenv::dotenv;
-use env_logger;
 use std::ffi::OsString;
 use std::time::Duration;
 use windows_service::service_dispatcher;
@@ -15,8 +14,8 @@ static SERVICE_NAME: &str = "dial-auto-svc";
 define_windows_service!(ffi_service_main, my_service_main);
 
 fn my_service_main(arguments: Vec<OsString>) {
-    if let Err(_e) = run_service(arguments) {
-        // Handle errors in some way.
+    if let Err(e) = run_service(arguments) {
+        log::error!("{:?}", e);
     }
 }
 
@@ -38,18 +37,12 @@ fn run_service(_arguments: Vec<OsString>) -> windows_service::Result<()> {
     let status_handle = service_control_handler::register(SERVICE_NAME, event_handler)?;
 
     let next_status = ServiceStatus {
-        // Should match the one from system service registry
-        service_type: ServiceType::OWN_PROCESS,
-        // The new state
-        current_state: ServiceState::Running,
-        // Accept stop events when running
-        controls_accepted: ServiceControlAccept::STOP,
-        // Used to report an error when starting or stopping only, otherwise must be zero
-        exit_code: ServiceExitCode::Win32(0),
-        // Only used for pending states, otherwise must be zero
-        checkpoint: 0,
-        // Only used for pending states, otherwise must be zero
-        wait_hint: Duration::default(),
+        service_type: ServiceType::OWN_PROCESS, // Should match the one from system service registry
+        current_state: ServiceState::Running, // The new state
+        controls_accepted: ServiceControlAccept::STOP, // Accept stop events when running
+        exit_code: ServiceExitCode::Win32(0), // Used to report an error when starting or stopping only, otherwise must be zero
+        checkpoint: 0, // Only used for pending states, otherwise must be zero
+        wait_hint: Duration::default(), // Only used for pending states, otherwise must be zero
     };
 
     // Tell the system that the service is running now
@@ -63,12 +56,33 @@ fn run_service(_arguments: Vec<OsString>) -> windows_service::Result<()> {
 #[cfg(windows)]
 fn main() -> Result<(), windows_service::Error> {
     dotenv().ok();
-    env_logger::builder()
-        .write
-    env_logger::init();
+    init_fern().ok();
     log::info!("started");
     // Register generated `ffi_service_main` with the system and start the service, blocking
     // this thread until the service is stopped.
     service_dispatcher::start(SERVICE_NAME, ffi_service_main)?;
+    Ok(())
+}
+
+#[cfg(not(windows))]
+fn main() {
+    panic!("This program is only intended to run on Windows.");
+}
+
+fn init_fern() -> Result<(), fern::InitError> {
+    let tmp_dir = std::env::var("temp").unwrap();
+    fern::Dispatch::new()
+        .format(|out, message, record| {
+            out.finish(format_args!(
+                "{}[{}][{}] {}",
+                chrono::Local::now().format("[%Y-%m-%d][%H:%M:%S]"),
+                record.target(),
+                record.level(),
+                message
+            ))
+        })
+        .level(log::LevelFilter::Debug)
+        .chain(fern::log_file(tmp_dir + "\\" + SERVICE_NAME + ".log")?)
+        .apply()?;
     Ok(())
 }
