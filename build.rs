@@ -1,12 +1,12 @@
 use std::path::Path;
 use std::{env, fs};
 
-//const ICON_ON: &str = "on.ico";
+const ICON_ON: &str = "on.ico";
 const ICON_OFF: &str = "off.ico";
 
 fn main() {
     let target_dir_path = env::var("OUT_DIR").unwrap();
-//    copy(&target_dir_path, ICON_ON);
+    copy(&target_dir_path, ICON_ON);
     copy(&target_dir_path, ICON_OFF);
 }
 

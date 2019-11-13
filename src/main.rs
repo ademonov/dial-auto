@@ -1,4 +1,4 @@
-// #![windows_subsystem = "windows"]
+//// #![windows_subsystem = "windows"]
 
 #[cfg(target_os = "windows")]
 fn main() -> Result<(), systray::Error> {
@@ -9,17 +9,19 @@ fn main() -> Result<(), systray::Error> {
     }
     app.set_icon_from_file("off.ico")?;
 
-    app.add_menu_item("Print a thing", |_| {
-        println!("Printing a thing!");
+    app.add_menu_item("Connect", |app| {
+        println!("Connecting...");
+        // TODO: Execute connect
+        app.set_icon_from_file("on.ico")?;
+        println!("Done");
         Ok::<_, systray::Error>(())
     })?;
 
-    app.add_menu_item("Add Menu Item", |window| {
-        window.add_menu_item("Interior item", |_| {
-            println!("what");
-            Ok::<_, systray::Error>(())
-        })?;
-        window.add_menu_separator()?;
+    app.add_menu_item("Disconnect", |app| {
+        println!("Disconnecting...");
+        // TODO: Execute disconnect
+        app.set_icon_from_file("off.ico")?;
+        println!("Done");
         Ok::<_, systray::Error>(())
     })?;
 
@@ -30,7 +32,7 @@ fn main() -> Result<(), systray::Error> {
         Ok::<_, systray::Error>(())
     })?;
 
-    println!("Waiting on message!");
+    println!("Ready");
     app.wait_for_message()?;
     Ok(())
 }
