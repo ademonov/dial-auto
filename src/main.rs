@@ -2,7 +2,6 @@
 
 #[cfg(target_os = "windows")]
 fn main() -> Result<(), systray::Error> {
-
     let mut app;
     match systray::Application::new() {
         Ok(w) => app = w,
@@ -12,7 +11,19 @@ fn main() -> Result<(), systray::Error> {
 
     app.add_menu_item("Connect", |app| {
         println!("Connecting...");
+
         // TODO: Execute connect
+        let output = std::process::Command::new("ping").arg("localhost").spawn();
+        match output {
+            Err(e) => println!("Error: {:?}", e),
+            Ok(mut c) => {
+                println!("Ok: {:?}", c);
+                let exit_status = c.wait().unwrap();
+                println!("ExitStatus: {:?}", exit_status)
+            }
+        }
+
+
         app.set_icon_from_file("on.ico")?;
         println!("Done");
         Ok::<_, systray::Error>(())
@@ -20,7 +31,7 @@ fn main() -> Result<(), systray::Error> {
 
     app.add_menu_item("Disconnect", |app| {
         println!("Disconnecting...");
-        // TODO: Execute disconnect
+// TODO: Execute disconnect
         app.set_icon_from_file("off.ico")?;
         println!("Done");
         Ok::<_, systray::Error>(())
@@ -52,9 +63,9 @@ fn main() -> Result<(), systray::Error> {
 
 fn set_console_visibility(visibility: bool) {
     let window = unsafe { kernel32::GetConsoleWindow() };
-    // https://msdn.microsoft.com/en-us/library/windows/desktop/ms633548%28v=vs.85%29.aspx
+// https://msdn.microsoft.com/en-us/library/windows/desktop/ms633548%28v=vs.85%29.aspx
     if window != std::ptr::null_mut() {
-        let msg = match  visibility {
+        let msg = match visibility {
             false => winapi::um::winuser::SW_HIDE,
             _ => winapi::um::winuser::SW_SHOWNORMAL,
         };
