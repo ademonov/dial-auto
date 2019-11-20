@@ -78,4 +78,19 @@ fn set_console_visibility(visibility: bool) {
 #[cfg(not(target_os = "windows"))]
 fn main() {
     panic!("Not implemented on this platform!");
+}enum Phase {
+    Before,
+    On,
+    After
 }
+
+enum Operation {
+    Connect(Phase),
+    Disconnect(Phase)
+}
+
+struct Status {
+    Current: Option<Operation>,
+    Connected: bool,
+}
+
