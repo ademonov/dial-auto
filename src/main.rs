@@ -1,5 +1,10 @@
 //// #![windows_subsystem = "windows"] //we don't need it until we are keeping console window here
 
+#[cfg(not(target_os = "windows"))]
+fn main() {
+    panic!("Not implemented on this platform!");
+}
+
 #[cfg(target_os = "windows")]
 fn main() -> Result<(), systray::Error> {
     let mut app;
@@ -69,16 +74,11 @@ fn set_console_visibility(visibility: bool) {
             false => winapi::um::winuser::SW_HIDE,
             _ => winapi::um::winuser::SW_SHOWNORMAL,
         };
-        unsafe {
-            user32::ShowWindow(window, msg);
-        }
+        unsafe { user32::ShowWindow(window, msg); }
     }
 }
 
-#[cfg(not(target_os = "windows"))]
-fn main() {
-    panic!("Not implemented on this platform!");
-}enum Phase {
+enum Phase {
     Before,
     On,
     After
