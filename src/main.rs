@@ -32,10 +32,9 @@ fn main() -> Result<(), systray::Error> {
             Ok(mut c) => {
                 println!("Ok: {:?}", c);
                 let exit_status = c.wait().unwrap();
-                println!("ExitStatus: {:?}", exit_status)
+                println!("ExitStatus: {:?}", exit_status);
             }
         }
-
 
         app.set_icon_from_file("on.ico")?;
         println!("Done");
