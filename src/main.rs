@@ -17,6 +17,14 @@ fn main() -> Result<(), systray::Error> {
     app.add_menu_item("Connect", |app| {
         println!("Connecting...");
 
+        if execute_before_connect() {
+            if execute_connect() {
+                if execute_after_connect() {
+                    heart_beat(true);
+                }
+            }
+        }
+
         // TODO: Execute connect
         let output = std::process::Command::new("ping").arg("localhost").spawn();
         match output {
@@ -37,6 +45,15 @@ fn main() -> Result<(), systray::Error> {
     app.add_menu_item("Disconnect", |app| {
         println!("Disconnecting...");
 // TODO: Execute disconnect
+
+        if execute_before_disconnect() {
+            if execute_disconnect() {
+                if execute_after_disconnect() {
+                    heart_beat(false);
+                }
+            }
+        }
+
         app.set_icon_from_file("off.ico")?;
         println!("Done");
         Ok::<_, systray::Error>(())
